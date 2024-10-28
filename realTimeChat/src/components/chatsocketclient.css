@@ -1,45 +1,75 @@
 .chat-container {
     display: flex;
     flex-direction: column;
-    height: 100vh; 
-    padding: 10px;
-    box-sizing: border-box;
+    height: 85vh; 
   }
   
   .messages {
+  
     flex: 1;
     overflow-y: auto;
     padding: 10px;
-    border: 1px solid #ccc; 
-    border-radius: 5px; 
-    background-color: #f9f9f9; 
+    
+    /* border: 1px solid #ccc;  */
+    /* border-radius: 5px;  */
+    /* background-color: #f9f9f9;  */
   }
+.messages div{
+  padding: 10px;
+  display: flex;
+  margin: 10px;
+  
+}
 
+.message-info{
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  overflow-wrap: break-word; 
+  max-width: 50%;
+}
+.non-user-radius{
+  background: #ffeeeef8;
+  border-radius: 8px 8px 8px 0px;
 
+}
+.user-radius{
+  background: #b9b4b4f8;
+  border-radius: 8px 8px 0px 8px;
+}
   .input-container {
     display: flex; 
     align-items: center; 
     margin-top: 10px; 
+    padding: 0 10px;
   }
   
   .input-container  input {
     flex: 1; 
-    padding: 10px;
+    padding: 10px 50px 10px 10px;
     border: 1px solid #ccc; 
     border-radius: 5px; 
+    background-color: #eeeef8;
+    position: relative;
+    resize: none;
 }
   
-.input-container button {
-    padding: 10px 15px; 
-    margin-left: 10px; 
-    border: none; 
-    border-radius: 5px; 
-    background-color: #347aca; 
-    color: white; 
-    cursor: pointer; 
+.input-container img {
+
+    color: rgb(211, 209, 209); 
+    cursor: pointer;
+    position: absolute; 
+    right: 30px;
   }
-  
-  .input-container button:hover {
-    background-color: #0056b3; 
-  }
-  
+ 
+
+
+
+  .user-image{
+    height: 60px;
+    width: 60px;
+    border-radius: 12px;
+  background-size: cover;
+  background-position:  center; 
+
+}
