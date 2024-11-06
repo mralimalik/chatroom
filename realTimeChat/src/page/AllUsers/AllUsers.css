@@ -1,0 +1,37 @@
+.chat-screen{
+
+    display: flex;    
+
+}
+.user-list {
+    width: 30%; 
+    overflow-y: auto;
+    height: 100vh;
+
+}
+
+.user-item{
+overflow-y: auto;
+    padding: 10px;
+   
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.list-divider{
+    width: 100%;
+    height: 2px;
+    background-color: rgba(0, 47, 255, 0.308);
+}
+
+.avatar{
+    border-radius: 100%;
+}
+.user-name{
+    font-size: 18px;
+}
+
+.chat-container{
+    width: 100%;
+}
