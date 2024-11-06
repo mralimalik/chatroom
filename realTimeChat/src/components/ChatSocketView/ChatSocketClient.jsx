@@ -1,57 +1,28 @@
 import { useState, useEffect, useRef, useContext } from "react";
 import "./chatsocketclient.css";
 import { AuthContext } from "../../context/AuthContext.jsx";
-
+import { ChatContext } from "../../context/ChatContext.jsx";
 import axios from "axios";
 
 const ChatSocketClient = ({ friendId, name }) => {
   // get current user data from context
   const { userData } = useContext(AuthContext);
-  // State to hold messages received from the server
-  const [messages, setMessages] = useState([]);
-  // State to hold the current input value from the user
+
+  // variables functions in chat context
+  const {
+    createConversation,
+    messages,
+    setMessages,
+    conversationId,
+    showNotification,
+    socketRef,
+    setUpSocketClient
+  } = useContext(ChatContext);
+
   const [input, setInput] = useState("");
-  // Ref to hold the WebSocket connection
-  const socketRef = useRef(null);
-  // holds the conversationId between two users
-  const conversationId = useRef("");
 
-  const setUpSocketClient = () => {
-    // Connect to the WebSocket server
-    socketRef.current = new WebSocket("ws://localhost:8080");
 
-    // Event handler for when the connection is opened
-    socketRef.current.onopen = () => {
-      console.log("Connected to the WebSocket server");
-    };
-    // Event handler for recieving message, parse the
-    socketRef.current.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      console.log("Received message from server:", message, typeof message);
 
-      // Check if the message belongs to the current conversation
-      if (message.conversationId === conversationId.current) {
-        console.log(
-          "MEessage recieved",
-          message.conversationId,
-          "conversation id",
-          conversationId.current
-        );
-        setMessages((prevMessages) => [...prevMessages, message]);
-      }
-      // Check if the incoming message is from another user
-      if (userData.current._id === message.receiver) {
-        console.log("User id from meesage", message.sender._id);
-        showNotification(message.sender.name, message.message);
-      } else {
-        console.log("Received my own message, no notification shown.");
-      }
-    };
-    //Handler when connection is closed
-    socketRef.current.onclose = () => {
-      console.log("Disconnected from the WebSocket server");
-    };
-  };
 
   // Function to send a message to the server
   const sendMessage = async () => {
@@ -75,7 +46,6 @@ const ChatSocketClient = ({ friendId, name }) => {
       } else {
         console.error(
           "WebSocket is not open. Current state:",
-          socketRef.current.readyState
         );
       }
     }
@@ -106,63 +76,12 @@ const ChatSocketClient = ({ friendId, name }) => {
     }
   };
 
-  const showNotification = (sender, message) => {
-    if (Notification.permission === "granted") {
-      console.log("Sending notification");
-      new Notification(`Hey, you got the message from ${sender}`, {
-        body: message,
-        silent: false,
-      });
-      console.log("Notification sent");
-    } else {
-      console.log("User did not granted permissin");
-    }
-  };
-
-  const createConversation = async (currentUserId, otherUserId) => {
-    // Make a POST request to the server
-    const response = await axios.post(
-      "http://localhost:3000/convo/create",
-      {
-        currentUserId,
-        otherUserId,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    console.log("conversation id ", response.data.conversation);
-
-    conversationId.current = response.data.conversation._id;
-    await fetchMessages();
-  };
-
-  // Function to fetch messages for a specific conversation
-  const fetchMessages = async () => {
-    try {
-      console.log(conversationId.current);
-      const response = await axios.get(
-        `http://localhost:3000/convo/${conversationId.current}`
-      );
-      setMessages(response.data.messages);
-    } catch (err) {
-      console.error("Error fetching messages:", err);
-    }
-  };
-
   useEffect(() => {
     setMessages([]);
     createConversation(userData.current._id, friendId);
   }, [friendId]);
 
-  useEffect(() => {
-    setUpSocketClient();
-    return () => {
-      if (socketRef.current) socketRef.current.close();
-    };
-  }, []);
+
 
   return (
     <div className="chat-container">

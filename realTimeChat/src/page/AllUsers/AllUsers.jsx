@@ -5,12 +5,17 @@ import "./AllUsers.css";
 import axios from "axios";
 import { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../../context/AuthContext.jsx";
+import { ChatContext } from "../../context/ChatContext.jsx";
 
 const AllUsers = () => {
+
   const [users, setUsers] = useState([]);
   const [selectedUserData, setSelectedUserData] = useState({});
 
   const { userData } = useContext(AuthContext);
+
+  // variables functions in chat context
+  const { socketRef, setUpSocketClient,onlineUsers,setOnlineUsers } = useContext(ChatContext);
 
   // Function to get users from the API
   const getUsers = async () => {
@@ -31,7 +36,15 @@ const AllUsers = () => {
 
   useEffect(() => {
     getUsers();
+    setUpSocketClient(userData);
+    return()=> {
+      if(socketRef.current) {
+        socketRef.current.close();
+      }
+    }
   }, []);
+
+
 
   return (
     <div className="chat-screen">
@@ -42,7 +55,6 @@ const AllUsers = () => {
               className="user-item"
               onClick={() => setSelectedUserData(user)}
             >
-              {/* <img className="avatar" src={user.avatar} alt={user.name} height={60} width={60}/> */}
               <div className="user-name">{user.name}</div>
             </div>
 
@@ -52,7 +64,9 @@ const AllUsers = () => {
       </div>
       {Object.keys(selectedUserData).length > 0 && ( // Check if userData is not empty
         <div className="chat-container">
-          <Navbar username={selectedUserData.name || ""} />
+          <Navbar
+           username={selectedUserData.name || ""}
+           online={onlineUsers.includes(selectedUserData._id) ? "Online" : "Offline"}             />
           <ChatSocketClient
             friendId={selectedUserData._id}
             name={selectedUserData.name}
