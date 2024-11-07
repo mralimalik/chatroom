@@ -3,10 +3,13 @@ import "./chatsocketclient.css";
 import { AuthContext } from "../../context/AuthContext.jsx";
 import { ChatContext } from "../../context/ChatContext.jsx";
 import axios from "axios";
-
+import send from '../../assets/send.png'
 const ChatSocketClient = ({ friendId, name }) => {
   // get current user data from context
   const { userData } = useContext(AuthContext);
+
+   // Ref to the messages container
+   const messagesEndRef = useRef(null);
 
   // variables functions in chat context
   const {
@@ -16,13 +19,10 @@ const ChatSocketClient = ({ friendId, name }) => {
     conversationId,
     showNotification,
     socketRef,
-    setUpSocketClient
+    setUpSocketClient,
   } = useContext(ChatContext);
 
   const [input, setInput] = useState("");
-
-
-
 
   // Function to send a message to the server
   const sendMessage = async () => {
@@ -44,9 +44,7 @@ const ChatSocketClient = ({ friendId, name }) => {
         await sendMessageToDatabase();
         console.log("Message sent:", message);
       } else {
-        console.error(
-          "WebSocket is not open. Current state:",
-        );
+        console.error("WebSocket is not open. Current state:");
       }
     }
   };
@@ -81,8 +79,14 @@ const ChatSocketClient = ({ friendId, name }) => {
     createConversation(userData.current._id, friendId);
   }, [friendId]);
 
+  // Scroll to the bottom of the messages container
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
-
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
   return (
     <div className="chat-container">
       <div className="messages">
@@ -134,6 +138,8 @@ const ChatSocketClient = ({ friendId, name }) => {
             )}
           </div>
         ))}
+         {/* div to scroll */}
+         <div ref={messagesEndRef} />
       </div>
       <div className="input-container">
         <input
@@ -144,7 +150,7 @@ const ChatSocketClient = ({ friendId, name }) => {
         />
         <img
           onClick={sendMessage}
-          src={""}
+          src={send}
           alt=""
           style={{ width: "25px", height: "25px" }}
         />

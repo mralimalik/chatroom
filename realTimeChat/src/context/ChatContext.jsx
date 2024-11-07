@@ -10,6 +10,7 @@ export const ChatContextProvider = ({ children }) => {
   // holds the conversationId between two users
   const conversationId = useRef("");
 
+
   // Ref to hold the WebSocket connection
   const socketRef = useRef(null);
 
@@ -37,9 +38,9 @@ export const ChatContextProvider = ({ children }) => {
 
       if (message.type === "onlineUsers") {
         setOnlineUsers(message.onlineUsers);
-        console.log("Online users updated:", message.onlineUsers);
+        console.log("getting Online users:", message.onlineUsers);
       } else if (message.type === "register") {
-        console.log("");
+        console.log("sending userid id to server");
       } else {
         // Check if the message belongs to the current conversation
         if (message.conversationId === conversationId.current) {
@@ -58,6 +59,7 @@ export const ChatContextProvider = ({ children }) => {
         } else {
           console.log("Received my own message, no notification shown.");
         }
+    
       }
     };
     //Handler when connection is closed
@@ -131,6 +133,8 @@ export const ChatContextProvider = ({ children }) => {
       console.log("User did not granted permissin");
     }
   };
+
+
 
   useEffect(() => {
     requestPermission();

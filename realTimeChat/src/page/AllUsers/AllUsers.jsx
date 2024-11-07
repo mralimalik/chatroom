@@ -3,19 +3,22 @@ import ChatSocketClient from "../../components/ChatSocketView/ChatSocketClient";
 import Navbar from "../../components/Navbar/Navbar";
 import "./AllUsers.css";
 import axios from "axios";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useMemo } from "react";
 import { AuthContext } from "../../context/AuthContext.jsx";
 import { ChatContext } from "../../context/ChatContext.jsx";
 
 const AllUsers = () => {
-
   const [users, setUsers] = useState([]);
   const [selectedUserData, setSelectedUserData] = useState({});
+
+  const [selectedUserId, setSelectedUserId] = useState("");
+  const [searchQuery, setSearchQuery] = useState(""); // State for search query
 
   const { userData } = useContext(AuthContext);
 
   // variables functions in chat context
-  const { socketRef, setUpSocketClient,onlineUsers,setOnlineUsers } = useContext(ChatContext);
+  const { socketRef, setUpSocketClient, onlineUsers, setOnlineUsers } =
+    useContext(ChatContext);
 
   // Function to get users from the API
   const getUsers = async () => {
@@ -37,40 +40,70 @@ const AllUsers = () => {
   useEffect(() => {
     getUsers();
     setUpSocketClient(userData);
-    return()=> {
-      if(socketRef.current) {
+    return () => {
+      if (socketRef.current) {
         socketRef.current.close();
       }
-    }
+    };
   }, []);
 
-
+  // Filter users based on search query
+  const filteredUsers = useMemo(() => {
+    return users.filter((user) =>
+      user.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [users, searchQuery]);
 
   return (
     <div className="chat-screen">
       <div className="user-list">
-        {users.map((user) => (
-          <div className="list-item" key={user.id}>
+        <p>All User Chats</p>
+
+        <div className="input-container">
+          <input
+            type="text"
+            placeholder="Search User"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)} // Update search query
+          />
+        </div>
+
+        {filteredUsers.map((user, index) => (
+          <div className={`list-item`} key={user.id}>
             <div
-              className="user-item"
-              onClick={() => setSelectedUserData(user)}
+              className={`user-item ${
+                selectedUserId === user._id ? "user-selected" : ""
+              }`}
+              onClick={() => {
+                setSelectedUserData(user);
+                setSelectedUserId(user._id);
+                console.log(user._id);
+              }}
             >
+              <div className="avatar"></div>
+
               <div className="user-name">{user.name}</div>
             </div>
-
-            <div className="list-divider"></div>
+            {/* <div className="list-divider"></div> */}
           </div>
         ))}
       </div>
-      {Object.keys(selectedUserData).length > 0 && ( // Check if userData is not empty
-        <div className="chat-container">
+      {Object.keys(selectedUserData).length > 0 ? ( // Check if userData is not empty
+        <div className="chat-containers">
           <Navbar
-           username={selectedUserData.name || ""}
-           online={onlineUsers.includes(selectedUserData._id) ? "Online" : "Offline"}             />
+            username={selectedUserData.name || ""}
+            online={
+              onlineUsers.includes(selectedUserData._id) ? "Online" : "Offline"
+            }
+          />
           <ChatSocketClient
             friendId={selectedUserData._id}
             name={selectedUserData.name}
           />
+        </div>
+      ) : (
+        <div className="no-selected-chat-container">
+          <p>NO CHAT SELECTED</p>
         </div>
       )}
     </div>
